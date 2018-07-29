@@ -1,0 +1,61 @@
+
+//logInfo为日志表结构     
+
+create table logInfo
+(log_id int 　 　 　         //日志记录序号(标识，自增) 
+ table_name varchar(30) 　   //修改记录所在的表名 
+ operate_type char(1) 　 　  //是创建记录还是修改记录(0新建，1修改,2删除) 
+ time datetime 　 　 　      //修改时间
+ record_key varchar(20) 　 　//修改记录的关键字段值　 　 
+ mender_name varchar(20)     //修改者姓名
+)
+
+
+
+create table CurrentUser        //建立一个用户修改表，用来记录修改的用户
+(
+ username varchar(20)
+) 
+
+
+create trigger log_userInfo_insert           //插入日志
+on userInfo 
+for insert
+as
+begin
+declare @userName varchar(20),@NewUser varchar(20)
+ select @userName=userName from CurrentUser 
+ select @NewUser=userName from inserted
+ insert into logInfo(table_name,operate_type,time,mender_name,record_kye)
+ values('userInfo',0,GetDate(),@userName, @NewUser)
+end
+
+
+
+
+create trigger log_userInfo_del         //删除日志
+on userInfo 
+for delete
+as
+begin
+declare @userName varchar(20),@DelUser varchar(20)
+select @userName=userName from CurrentUser 
+select @DelUser=userName from deleted
+insert into logInfo(table_name,operate_type,time,mender_name,record_kye)
+values('userInfo',1,GetDate(),@userName, @DelUser)
+end
+
+
+
+
+create trigger log_userInfo_update      //更新日志
+on userInfo 
+for update
+as
+begin
+declare @userName varchar(20),@UpdateUser varchar(20)
+select @userName=userName from CurrentUser 
+select @UpdateUser=userName from deleted
+insert into logInfo(table_name,operate_type,time,mender_name,record_kye1)
+values('userInfo',2,GetDate(),@userName, @UpdateUser)
+end
